@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<audio controls id="careless" controls style="display:none">>
+<source src="music/CW.mp3" type="audio/mpeg">
+</audio>
+<audio controls id="background" controls style="display:none">>
+<source src="music/background.mp3" type="audio/mpeg">
+</audio>
+<audio controls id="ASMR" controls style="display:none">>
+<source src="music/ASMR.mp3" type="audio/mpeg">
+</audio>
+<audio controls id="boring" controls style="display:none">>
+<source src="music/StrawHat.mp3" type="audio/mpeg">
+</audio>
+<audio controls id="vines" controls style="display:none">>
+<source src="music/vines.mp3" type="audio/mpeg">
+</audio>
+
+<audio controls id="spaceSound" controls style="display:none">>
+<source src="music/center.mp3" type="audio/mpeg">
+</audio>
+<audio controls id="softSpaceSound" controls style="display:none">>
+<source src="music/crash.mp3" type="audio/mpeg">
+</audio>
+<audio controls id="crash" controls style="display:none">>
+<source src="music/crash.mp3" type="audio/mpeg">
+</audio>
+
+
+<audio controls id="leftSound" controls style="display:none">>
+<source src="music/left.mp3" type="audio/mpeg">
+</audio>
+<audio controls id="rightSound" controls style="display:none">>
+<source src="music/right.mp3" type="audio/mpeg">
+</audio>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Try Not To Drool</title>
+    <style>
+    	* { padding: 0; margin: 0; }
+    	canvas { background: #eee; display: block; margin: 0 auto; }
+    </style>
+</head>
+<body>
+
+<canvas id="myCanvas" width="0" height="0"></canvas>
+
+<script>
+	//TODO 
+	//Implement SecretMode
+	//Implement High Score
+	
+	var canvas = document.getElementById("myCanvas");
+	var ctx = canvas.getContext("2d");
+	
+	console.log("Begining")
+	var background = document.getElementById("background");
+	
+	var crash = document.getElementById("crash");
+	// MyScript JS
+
+	var spaceSound = document.getElementById("spaceSound");
+	var leftSound = document.getElementById("leftSound")
+	var rightSound = document.getElementById("rightSound")
+	
+	
+	//How do I use controls to make the ball move?
+	var onMenu = true
+	var menuValue = 0
+	var gPressed = false
+	//Return list of XY
+	var gameID = null
+	var menuID = null
+	var gameTime = 0
+	var nextAlert = 3000
+	
+	// Max threshold needs to be less than min timeOptions
+	var threshold = 2000
+	var minTime = 3000
+	var rangeTime = 3000
+	var safe = true
+	var lastBuzz  = 0
+	var failTime = nextAlert + threshold
+	
+	//Variables to insert different levels
+	var spaceNext = false
+	var leftNext = false
+	var rightNext = false
+	var nextValid = -1
+	
+	// set Variables for Left and Right Code
+	var leftSide = ['r','f','v','e','d','c','w','s','x','q']
+	var rightSide = ['y','h','n','u','j','m','i','k',',','o']
+	// Grace Period for Continued Touches
+	var gracePeriod = 400
+	var endGrace = -1
+	var inGrace = false
+	
+	// Store Number of Buzzers
+	var numberBuzzer = 0
+	
+	// Level up Mechanics
+	var threholdLevel = -25
+	var minTimeLevel = -25
+	var rangeTimeLevel = -25
+	var droolMode = false
+	
+	function droolModeFunction(){
+		droolMode = true
+		minTimeLevel = 300
+		rangeTimeLevel = 300
+		minTime = 5000
+		rangeTime = 5000
+		nextAlert = 3000
+		failTime = nextAlert + rangeTime
+		console.log("FailTime " + failTime)
+		background = document.getElementById("boring");
+		// spaceSound = document.getElementById("softSpaceSound");
+	}
+	
+	
+	
+	
+	
+	
+	document.addEventListener("keydown", keyDownHandler, false);
+	document.addEventListener("keyup", keyUpHandler, false);
+	
+	function failState(){
+		clearInterval(gameID);
+		
+		background.pause()
+		crash.play();
+		
+		setTimeout(function(){
+			var msg = new SpeechSynthesisUtterance('I hope you didn\'t drool? You played For' + gameTime/1000 + " Seconds. and pinged " + numberBuzzer + "Buzzers. Try Again Soon");
+			window.speechSynthesis.speak(msg);
+		}, 4000);
+		
+	}
+	
+	
+	function menuInterface(){
+		var msg = new SpeechSynthesisUtterance('Welcome to "Try Not To Drool, Please place your nose on the G key to get started? ? ? ? ?"');
+		window.speechSynthesis.speak(msg);
+	}
+	
+	
+	function makeSafe(){
+		spaceNext = false
+		leftNext = false
+		rightNext = false
+		safe = true
+		inGrace = true
+		endGrace = gameTime + gracePeriod
+		failTime = failTime + minTime + rangeTime
+	}
+	
+	function levelUp(){
+			threshold += threholdLevel
+			minTime += minTimeLevel
+			rangeTime += rangeTimeLevel
+			
+	}
+	
+	function keyDownHandler(e) {
+		if(e.key == '1' && onMenu === true && droolMode === false){
+			console.log("Drool Mode Activate")
+			var msg = new SpeechSynthesisUtterance('Drool Mode Activated');
+			window.speechSynthesis.speak(msg);
+			droolModeFunction()	
+		}
+		else if(e.key == '2' && onMenu === true && droolMode === false){
+			console.log("ASMR")
+			var msg = new SpeechSynthesisUtterance('ITs A S M R time');
+			window.speechSynthesis.speak(msg);
+			background = document.getElementById("ASMR");
+		}
+		else if(e.key == '3' && onMenu === true && droolMode === false){
+			console.log("careless")
+			var msg = new SpeechSynthesisUtterance('I should have known better than to cheat a friend');
+			window.speechSynthesis.speak(msg);
+			background = document.getElementById("careless");
+		}
+		else if(e.key == '4' && onMenu === true && droolMode === false){
+			console.log("careless")
+			var msg = new SpeechSynthesisUtterance('Try to pay attention');
+			window.speechSynthesis.speak(msg);
+			background = document.getElementById("vines");
+		}
+		/*
+		else if(e.key == 'd' && onMenu === true && droolMode === false){
+			var msg = new SpeechSynthesisUtterance('Drool Mode Activated');
+			window.speechSynthesis.speak(msg);
+			droolMode()	
+		}
+		*/
+		if(e.key == 'g' && onMenu === true){
+			console.log("Key Down Should Clear Menu ID")
+			onMenu = false
+			clearInterval(menuID);
+			startGame()
+		}
+		if(e.key == "g") {
+			gPressed = true;
+		}
+		//Space Condition
+		else if(e.key == ' ' && !safe && spaceNext){
+			console.log("good space Press")
+			numberBuzzer +=1
+			levelUp()
+			makeSafe()
+			failTime += rangeTime + minTime
+		}
+		else if(e.key == ' ' && safe && !inGrace ){
+			console.log("Bad Space Press")
+			failState()
+		}
+		//left Condition
+		else if(leftSide.includes(e.key) && !safe && leftNext){
+			console.log("good left Press")
+			numberBuzzer +=1
+			levelUp()
+			makeSafe()
+			failTime += rangeTime + minTime
+		}
+		
+		else if(leftSide.includes(e.key) && safe && !inGrace ){
+			console.log("bad left Press")
+			failState()
+		}
+		
+		//right Condition
+		else if(rightSide.includes(e.key) && !safe && rightNext){
+			console.log("good Right Press")
+			numberBuzzer +=1
+			levelUp()
+			makeSafe()
+			failTime += rangeTime + minTime
+		}
+		else if(leftSide.includes(e.key) && safe && !inGrace){
+			console.log("bad right Press")
+			failState()
+		}
+	}
+
+	function keyUpHandler(e) {
+		if(e.key == "g") {
+			gPressed = false;
+		}
+	}
+	
+	function myLoop(){
+		if(!gPressed && gameTime > 2000){
+			background.pause()
+			console.log("No G press")
+			failState()
+		}
+		
+		if(gameTime >= nextAlert){			
+			//Dependent of game mode
+			nextBuzzer = Math.floor(Math.random() * 3)
+			if (nextBuzzer == 0){
+				spaceNext = true
+				console.log("Space Next")
+				spaceSound.play()
+			}
+			else if(nextBuzzer == 1){
+				leftNext = true
+				console.log("Left Next")
+				leftSound.play()
+			}
+			else if(nextBuzzer == 2){
+				rightNext = true
+				console.log("right Next")
+				rightSound.play()
+			}
+			
+			nextAlert = gameTime + minTime + Math.ceil(Math.random() * rangeTime / 10) * 10;
+			console.log("next Alert is " + nextAlert)
+
+			safe = false
+			console.log("Failtime " + failTime)
+			failTime = gameTime + threshold
+			console.log("next failtime is " + failTime + "GameTime " + gameTime)
+		}
+		if(gameTime === endGrace){
+			console.log("End Grace")
+			inGrace = false
+		}
+		
+		if (gameTime >= failTime){
+			console.log("game Time Greater than failtime")
+			failState()
+		}
+		
+		gameTime += 10
+	}
+	
+	function startGame(){
+		background.play()
+		onMenu = false
+		gameID = setInterval(myLoop, 10);
+		
+	}
+	
+	menuID = setInterval(menuInterface, 6000)
+
+	
+
+</script>
+
+</body>
+</html>
+
